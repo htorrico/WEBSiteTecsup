@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -41,6 +42,46 @@ namespace WEBSiteTecsup.Controllers
                         }).ToList();              
             }
             return View(model);
+        }
+
+
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Example/Create
+        [HttpPost]
+        public async Task<ActionResult> Create(PersonCreateModel model)
+        {
+            try
+            {
+                //Class a JSON
+                var request = JsonConvert.SerializeObject(model);
+                var content = new StringContent(request, Encoding.UTF8, "application/json");
+
+                var client = new HttpClient();
+                var urlBase = "https://localhost:44315";
+                client.BaseAddress = new Uri(urlBase);
+                var url = string.Concat(urlBase, "/Api", "/People", "/PostPerson");
+
+                var response = client.PostAsync(url, content).Result;
+
+                if (response.StatusCode == HttpStatusCode.Created)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                   
+                    //Si sale algo con error, puedes enviar una alerta.
+                    //var exito = JsonConvert.DeserializeObject<bool>(result);
+                    
+                }
+             
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
 }
